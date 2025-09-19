@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Penyakit - SP-PAROK</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 2rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .controls h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-item label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, select, button {
+            padding: 0.8rem 1rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .table-container {
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .data-table th:first-child {
+            border-top-left-radius: 15px;
+        }
+
+        .data-table th:last-child {
+            border-top-right-radius: 15px;
+        }
+
+        .data-table td {
+            padding: 1.2rem;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: top;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tr:last-child td:first-child {
+            border-bottom-left-radius: 15px;
+        }
+
+        .data-table tr:last-child td:last-child {
+            border-bottom-right-radius: 15px;
+        }
+
+        .severity-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .severity-ringan {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .severity-sedang {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .severity-berat {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .symptoms-list {
+            max-width: 300px;
+        }
+
+        .symptoms-list ul {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+
+        .symptoms-list li {
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 2rem;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.8rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-virus"></i>
+                Data Penyakit Akibat Rokok
+            </h1>
+            <p>Sistem Pakar SP-PAROK - Database Penyakit dan Gejala</p>
+        </div>
+
+        <div class="stats-summary">
+            <div class="stat-card">
+                <h3 id="totalDiseases">6</h3>
+                <p>Total Penyakit</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="severeCount">3</h3>
+                <p>Kategori Berat</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="moderateCount">2</h3>
+                <p>Kategori Sedang</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="mildCount">1</h3>
+                <p>Kategori Ringan</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <h2>Manajemen Data Penyakit</h2>
+            <div class="control-group">
+                <div class="control-item">
+                    <label for="searchDisease">Cari Penyakit:</label>
+                    <input type="text" id="searchDisease" placeholder="Masukkan nama penyakit..." onkeyup="filterDiseases()">
+                </div>
+                <div class="control-item">
+                    <label for="filterSeverity">Filter Tingkat Keparahan:</label>
+                    <select id="filterSeverity" onchange="filterDiseases()">
+                        <option value="">Semua Tingkat</option>
+                        <option value="ringan">Ringan</option>
+                        <option value="sedang">Sedang</option>
+                        <option value="berat">Berat</option>
+                    </select>
+                </div>
+                <div class="control-item">
+                    <label>&nbsp;</label>
+                    <button onclick="showAddModal()" class="btn-success">
+                        <i class="fas fa-plus"></i> Tambah Penyakit
+                    </button>
+                </div>
+                <div class="control-item">
+                    <label>&nbsp;</label>
+                    <button onclick="exportData()" class="btn-warning">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table" id="diseaseTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Kode Penyakit</th>
+                        <th>Nama Penyakit</th>
+                        <th>Tingkat Keparahan</th>
+                        <th>Gejala Utama</th>
+                        <th>Deskripsi</th>
+                        <th>Probability Range</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="diseaseTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Disease -->
+    <div class="modal" id="diseaseModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Tambah Penyakit Baru</h3>
+            <form id="diseaseForm">
+                <div class="control-item" style="margin-bottom: 1rem;">
+                    <label for="diseaseCode">Kode Penyakit:</label>
+                    <input type="text" id="diseaseCode" required>
+                </div>
+                <div class="control-item" style="margin-bottom: 1rem;">
+                    <label for="diseaseName">Nama Penyakit:</label>
+                    <input type="text" id="diseaseName" required>
+                </div>
+                <div class="control-item" style="margin-bottom: 1rem;">
+                    <label for="diseaseSeverity">Tingkat Keparahan:</label>
+                    <select id="diseaseSeverity" required>
+                        <option value="">Pilih Tingkat</option>
+                        <option value="ringan">Ringan</option>
+                        <option value="sedang">Sedang</option>
+                        <option value="berat">Berat</option>
+                    </select>
+                </div>
+                <div class="control-item" style="margin-bottom: 1rem;">
+                    <label for="diseaseSymptoms">Gejala Utama (pisahkan dengan koma):</label>
+                    <textarea id="diseaseSymptoms" rows="3" required></textarea>
+                </div>
+                <div class="control-item" style="margin-bottom: 1rem;">
+                    <label for="diseaseDescription">Deskripsi:</label>
+                    <textarea id="diseaseDescription" rows="4" required></textarea>
+                </div>
+                <div class="control-item" style="margin-bottom: 1rem;">
+                    <label for="probabilityRange">Probability Range (%):</label>
+                    <input type="text" id="probabilityRange" placeholder="e.g., 70-85" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn-success">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                    <button type="button" onclick="closeModal()" class="btn-danger">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Disease data structure based on the expert system logic
+        let diseases = [
+            {
+                id: 1,
+                code: 'P001',
+                name: 'Bronkitis Kronis',
+                severity: 'sedang',
+                symptoms: ['Batuk kronis', 'Sesak napas', 'Produksi dahak berlebih'],
+                description: 'Peradangan kronis pada bronkus yang menyebabkan batuk produktif selama minimal 3 bulan dalam 2 tahun berturut-turut',
+                probabilityRange: '70-85',
+                status: 'Aktif',
+                rules: ['IF batuk_kronis AND sesak_napas THEN bronkitis_kronis'],
+                recommendations: [
+                    'Segera hentikan kebiasaan merokok',
+                    'Konsultasikan dengan dokter spesialis paru',
+                    'Hindari asap rokok dan polusi udara',
+                    'Perbanyak konsumsi air putih',
+                    'Olahraga ringan secara teratur'
+                ]
+            },
+            {
+                id: 2,
+                code: 'P002', 
+                name: 'PPOK (Penyakit Paru Obstruktif Kronis)',
+                severity: 'berat',
+                symptoms: ['Sesak napas', 'Nafas berbunyi', 'Mudah lelah', 'Batuk kronis'],
+                description: 'Penyakit paru progresif yang ditandai dengan keterbatasan aliran udara yang persisten',
+                probabilityRange: '75-90',
+                status: 'Aktif',
+                rules: ['IF sesak_napas AND nafas_berbunyi AND mudah_lelah THEN ppok'],
+                recommendations: [
+                    'Segera berhenti merokok total',
+                    'Konsultasi dengan dokter paru segera', 
+                    'Gunakan masker saat keluar rumah',
+                    'Hindari aktivitas berat yang membuat sesak',
+                    'Konsumsi makanan bergizi tinggi'
+                ]
+            },
+            {
+                id: 3,
+                code: 'P003',
+                name: 'Kemungkinan Kanker Paru',
+                severity: 'berat',
+                symptoms: ['Batuk darah', 'Berat badan turun', 'Nyeri dada', 'Sesak napas'],
+                description: 'Pertumbuhan sel abnormal yang tidak terkendali di jaringan paru-paru',
+                probabilityRange: '80-95',
+                status: 'Aktif',
+                rules: ['IF batuk_darah AND berat_badan_turun AND nyeri_dada THEN kanker_paru'],
+                recommendations: [
+                    'SEGERA konsultasi dengan dokter onkologi',
+                    'Lakukan pemeriksaan CT scan paru',
+                    'Berhenti merokok sekarang juga',
+                    'Dukungan keluarga sangat penting',
+                    'Pertahankan pola makan sehat'
+                ]
+            },
+            {
+                id: 4,
+                code: 'P004',
+                name: 'Gejala Ringan Akibat Rokok',
+                severity: 'ringan',
+                symptoms: ['Batuk ringan', 'Sesak napas ringan', 'Mudah lelah'],
+                description: 'Gejala awal akibat kebiasaan merokok yang belum berkembang menjadi penyakit serius',
+                probabilityRange: '40-60',
+                status: 'Aktif',
+                rules: ['IF gejala_minimal AND riwayat_merokok THEN gejala_ringan'],
+                recommendations: [
+                    'Pertimbangkan untuk berhenti merokok',
+                    'Konsultasi dengan dokter umum',
+                    'Pola hidup sehat dengan olahraga teratur',
+                    'Konsumsi makanan bergizi seimbang',
+                    'Rutin check-up kesehatan'
+                ]
+            },
+            {
+                id: 5,
+                code: 'P005',
+                name: 'Emfisema',
+                severity: 'berat',
+                symptoms: ['Sesak napas berat', 'Batuk kronis', 'Mudah lelah', 'Nafas berbunyi'],
+                description: 'Kerusakan alveoli paru yang menyebabkan kesulitan bernapas dan pertukaran gas terganggu',
+                probabilityRange: '75-88',
+                status: 'Aktif',
+                rules: ['IF sesak_napas_berat AND batuk_kronis AND mudah_lelah THEN emfisema'],
+                recommendations: [
+                    'Berhenti merokok segera',
+                    'Terapi oksigen jika diperlukan',
+                    'Rehabilitasi paru',
+                    'Aktivitas fisik ringan terpantau',
+                    'Konsultasi rutin dengan dokter paru'
+                ]
+            },
+            {
+                id: 6,
+                code: 'P006',
+                name: 'Asma Akibat Rokok',
+                severity: 'sedang',
+                symptoms: ['Nafas berbunyi', 'Sesak napas', 'Batuk di malam hari', 'Dada terasa berat'],
+                description: 'Peradangan dan penyempitan saluran napas yang dipicu atau diperburuk oleh rokok',
+                probabilityRange: '65-80',
+                status: 'Aktif',
+                rules: ['IF nafas_berbunyi AND sesak_napas AND batuk_malam THEN asma'],
+                recommendations: [
+                    'Hindari pemicu asma termasuk rokok',
+                    'Gunakan inhaler sesuai petunjuk dokter',
+                    'Kontrol lingkungan dari allergen',
+                    'Olahraga teratur sesuai kemampuan',
+                    'Monitor gejala secara berkala'
+                ]
+            }
+        ];
+
+        let editingId = null;
+
+        function populateTable() {
+            const tbody = document.getElementById('diseaseTableBody');
+            tbody.innerHTML = '';
+
+            diseases.forEach(disease => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${disease.id}</td>
+                    <td><strong>${disease.code}</strong></td>
+                    <td><strong>${disease.name}</strong></td>
+                    <td><span class="severity-badge severity-${disease.severity}">${disease.severity.toUpperCase()}</span></td>
+                    <td>
+                        <div class="symptoms-list">
+                            <ul>
+                                ${disease.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </td>
+                    <td style="max-width: 300px; font-size: 0.9rem;">${disease.description}</td>
+                    <td><strong>${disease.probabilityRange}%</strong></td>
+                    <td><span style="color: #27ae60; font-weight: 600;">${disease.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewDetail(${disease.id})" class="btn-success">
+                                <i class="fas fa-eye"></i> Detail
+                            </button>
+                            <button onclick="editDisease(${disease.id})" class="btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button onclick="deleteDisease(${disease.id})" class="btn-danger">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalDiseases').textContent = diseases.length;
+            document.getElementById('severeCount').textContent = diseases.filter(d => d.severity === 'berat').length;
+            document.getElementById('moderateCount').textContent = diseases.filter(d => d.severity === 'sedang').length;
+            document.getElementById('mildCount').textContent = diseases.filter(d => d.severity === 'ringan').length;
+        }
+
+        function filterDiseases() {
+            const searchTerm = document.getElementById('searchDisease').value.toLowerCase();
+            const severityFilter = document.getElementById('filterSeverity').value;
+
+            const filteredDiseases = diseases.filter(disease => {
+                const matchesSearch = disease.name.toLowerCase().includes(searchTerm) || 
+                                    disease.code.toLowerCase().includes(searchTerm);
+                const matchesSeverity = !severityFilter || disease.severity === severityFilter;
+                
+                return matchesSearch && matchesSeverity;
+            });
+
+            const tbody = document.getElementById('diseaseTableBody');
+            tbody.innerHTML = '';
+
+            filteredDiseases.forEach(disease => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${disease.id}</td>
+                    <td><strong>${disease.code}</strong></td>
+                    <td><strong>${disease.name}</strong></td>
+                    <td><span class="severity-badge severity-${disease.severity}">${disease.severity.toUpperCase()}</span></td>
+                    <td>
+                        <div class="symptoms-list">
+                            <ul>
+                                ${disease.symptoms.map(symptom => `<li>${symptom}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </td>
+                    <td style="max-width: 300px; font-size: 0.9rem;">${disease.description}</td>
+                    <td><strong>${disease.probabilityRange}%</strong></td>
+                    <td><span style="color: #27ae60; font-weight: 600;">${disease.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewDetail(${disease.id})" class="btn-success">
+                                <i class="fas fa-eye"></i> Detail
+                            </button>
+                            <button onclick="editDisease(${disease.id})" class="btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button onclick="deleteDisease(${disease.id})" class="btn-danger">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showAddModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Tambah Penyakit Baru';
+            document.getElementById('diseaseForm').reset();
+            document.getElementById('diseaseModal').classList.add('show');
+        }
+
+        function editDisease(id) {
+            const disease = diseases.find(d => d.id === id);
+            if (disease) {
+                editingId = id;
+                document.getElementById('modalTitle').textContent = 'Edit Penyakit';
+                document.getElementById('diseaseCode').value = disease.code;
+                document.getElementById('diseaseName').value = disease.name;
+                document.getElementById('diseaseSeverity').value = disease.severity;
+                document.getElementById('diseaseSymptoms').value = disease.symptoms.join(', ');
+                document.getElementById('diseaseDescription').value = disease.description;
+                document.getElementById('probabilityRange').value = disease.probabilityRange;
+                document.getElementById('diseaseModal').classList.add('show');
+            }
+        }
+
+        function viewDetail(id) {
+            const disease = diseases.find(d => d.id === id);
+            if (disease) {
+                alert(`Detail Penyakit: ${disease.name}\n\nKode: ${disease.code}\nTingkat: ${disease.severity}\nGejala: ${disease.symptoms.join(', ')}\nDeskripsi: ${disease.description}\nProbabilitas: ${disease.probabilityRange}%`);
+            }
+        }
+
+        function deleteDisease(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus penyakit ini?')) {
+                diseases = diseases.filter(d => d.id !== id);
+                populateTable();
+                alert('Penyakit berhasil dihapus!');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('diseaseModal').classList.remove('show');
+        }
+
+        function exportData() {
+            const csvContent = [
+                ['ID', 'Kode', 'Nama Penyakit', 'Tingkat Keparahan', 'Gejala Utama', 'Deskripsi', 'Probability Range', 'Status'],
+                ...diseases.map(d => [
+                    d.id,
+                    d.code,
+                    d.name,
+                    d.severity,
+                    d.symptoms.join('; '),
+                    d.description,
+                    d.probabilityRange,
+                    d.status
+                ])
+            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data_penyakit_sp_parok.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Form submission
+        document.getElementById('diseaseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                code: document.getElementById('diseaseCode').value,
+                name: document.getElementById('diseaseName').value,
+                severity: document.getElementById('diseaseSeverity').value,
+                symptoms: document.getElementById('diseaseSymptoms').value.split(',').map(s => s.trim()),
+                description: document.getElementById('diseaseDescription').value,
+                probabilityRange: document.getElementById('probabilityRange').value,
+                status: 'Aktif'
+            };
+
+            if (editingId) {
+                // Edit existing disease
+                const index = diseases.findIndex(d => d.id === editingId);
+                if (index !== -1) {
+                    diseases[index] = { ...diseases[index], ...formData };
+                    alert('Penyakit berhasil diperbarui!');
+                }
+            } else {
+                // Add new disease
+                const newId = Math.max(...diseases.map(d => d.id)) + 1;
+                diseases.push({ id: newId, ...formData });
+                alert('Penyakit baru berhasil ditambahkan!');
+            }
+
+            populateTable();
+            closeModal();
+        });
+
+        // Initialize table
+        document.addEventListener('DOMContentLoaded', function() {
+            populateTable();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('diseaseModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
